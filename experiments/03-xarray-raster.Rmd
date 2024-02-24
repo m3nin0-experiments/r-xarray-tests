@@ -1,0 +1,165 @@
+---
+title: "Processing raster data using rstac and xarray"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document presents an example of how the [xarray](https://docs.xarray.dev/en/stable/index.html) can be used to handle spatio-temporal raster in R.
+
+## Installation
+
+To use the [xarray](https://docs.xarray.dev/en/stable/index.html) in R, it is required to have the [reticulate](https://rstudio.github.io/reticulate/) package installed. To do so, you can use the following command:
+
+```{r, eval=FALSE}
+install.packages("reticulate")
+```
+
+After installing the [reticulate](https://rstudio.github.io/reticulate/) package, we must create a Python virtual environment to install the [xarray](https://docs.xarray.dev/en/stable/index.html) library. For this, we can use the following command:
+
+> In this example, we use [conda](https://docs.conda.io/en/latest/) to manage Python virtual environments, but any other package management tool can also be used (e.g., mamba, virtualenv, poetry).
+
+```{r}
+# defining the name of the environment
+conda_env_name <- "r-xarray"
+
+# creating conda environment
+reticulate::conda_create(envname = conda_env_name)
+```
+
+With the environment created, let's install the dependencies on it:
+
+```{r}
+reticulate::py_install(
+  c("xarray", "dask", "distributed", "rioxarray", "stackstac"),
+  envname = conda_env_name,
+  pip =  TRUE
+)
+```
+
+## Importing Python libraries
+
+Now, we have an environment ready to go. So, let's activate it:
+
+```{r}
+reticulate::use_condaenv(condaenv = conda_env_name)
+```
+
+To use the [xarray](https://docs.xarray.dev/en/stable/index.html) library, we can import it using the following [reticulate](https://rstudio.github.io/reticulate/) command:
+
+```{r}
+xr <- reticulate::import("xarray")
+```
+
+For this example, we also need to import some [dask](https://www.dask.org/) packages:
+
+```{r}
+da <- reticulate::import("dask.array")
+dd <- reticulate::import("dask.distributed")
+```
+
+By default, [xarray](https://docs.xarray.dev/en/stable/index.html) does not manage raster data (e.g., `read`, `write`, `spatial reference system`). For this, we need to use the [rioxarray](https://corteva.github.io/rioxarray/html/index.html) library, which makes a [rasterio](https://rasterio.readthedocs.io/en/latest/index.html) [accessor](https://corteva.github.io/rioxarray/html/getting_started/getting_started.html#rio-accessor) available in the [xarray](https://docs.xarray.dev/en/stable/index.html) classes, enabling us to handle raster data. Let's import it:
+
+```{r}
+rioxarray <- reticulate::import("rioxarray")
+```
+
+Also, in this example, we will use data from an STAC catalog. To keep this example focused on the  [xarray](https://docs.xarray.dev/en/stable/index.html) and avoid many data manipulations, we will also use the [stackstac](https://github.com/gjoseph92/stackstac) library, which turns STAC items into an [xarray](https://docs.xarray.dev/en/stable/index.html):
+
+```{r}
+stackstac <- reticulate::import("stackstac")
+```
+
+Now, we are ready to go!
+
+## Configuring Dask
+
+As [dask](https://www.dask.org/) was created to help us scale applications using multiple cores or machines, to use it, we need first to configure the connection between our application and those resources. To do that, we must create an instance of the class `dask.distributed.Client`:
+
+```{r}
+client <- dd$Client()
+client
+```
+
+By default, when we create an instance of the `dask.distributed.Client` class, [dask](#) configures a local server to use all cores available in the machine.
+
+## Getting data using `rstac`
+
+In this example, we will get data from the STAC catalog managed by [Element 84](https://www.element84.com/). For this, we will use the [rstac](https://brazil-data-cube.github.io/rstac/). Let's import it:
+
+```{r}
+library(rstac)
+```
+
+Now, let's define the `endpoint` object of the STAC catalog:
+
+```{r}
+s_obj <- stac("https://earth-search.aws.element84.com/v1")
+```
+
+Using the `endpoint` we created above, let's search for Sentinel 2 L2A data from the Ibitinga reservoir (Brazil / SP):
+
+```{r}
+it_obj <- s_obj |>
+  stac_search(
+    collections = "sentinel-2-l2a",
+    bbox = c(-48.931732, -22.055096, -48.850708, -21.982528), # Ibitinga/SP
+    limit = 3
+  ) |>
+  get_request()
+```
+
+## Creating spatio-temporal array
+
+Based on the STAC Items we have selected from the STAC Catalog, we can create a spatio-temporal array. For this, we will use the [stackstac](https://github.com/gjoseph92/stackstac) library:
+
+```{r}
+spatiotemporal_array <- stackstac$stack(it_obj$features)
+spatiotemporal_array
+```
+
+## Temporal NDVI mean
+
+Using the spatio-temporal array, we can calculate a temporal mean of NDVI data. For this, first, let's get the `NIR` and `RED` data:
+
+```{r}
+nir <- spatiotemporal_array$sel(band="nir")
+red <- spatiotemporal_array$sel(band="red")
+```
+
+Now, we can calculate the NDVI:
+
+```{r}
+ndvi <- (nir - red) / (nir + red)
+ndvi
+```
+
+To finish, we can calculate the temporal mean of the NDVI data we created:
+
+```{r}
+ndvi_mean <- ndvi$mean(dim = c("time"))
+ndvi_mean
+```
+
+With [xarray](https://docs.xarray.dev/en/stable/index.html), we are always using lazy evaluation functions. So, the code above still needs to be executed. For this, we can ask [dask](https://www.dask.org/) to execute it using the `compute` method.
+
+```{r}
+ndvi_mean_data <- ndvi_mean$compute()
+ndvi_mean_data
+```
+
+To finish, we can save this result:
+
+```{r}
+# defining output directory
+output_dir <- fs::path("data/example-03")
+
+# creating output directory
+fs::dir_create(output_dir, recurse = TRUE)
+
+# saving results
+ndvi_mean_data$rio$to_raster(output_dir / "ndvi.tif")
+```

@@ -1,0 +1,111 @@
+---
+title: "Simple xarray example in R"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document presents an example of how the [xarray](https://docs.xarray.dev/en/stable/index.html) Python library can be used in R.
+
+## Installation
+
+To use the [xarray](https://docs.xarray.dev/en/stable/index.html) in R, it is required to have the [reticulate](https://rstudio.github.io/reticulate/) package installed. To do so, you can use the following command:
+
+```{r, eval=FALSE}
+install.packages("reticulate")
+```
+
+After installing the [reticulate](https://rstudio.github.io/reticulate/) package, we must create a Python virtual environment to install the [xarray](https://docs.xarray.dev/en/stable/index.html) library. For this, we can use the following command:
+
+> In this example, we use [conda](https://docs.conda.io/en/latest/) to manage Python virtual environments, but any other package management tool can also be used (e.g., mamba, virtualenv, poetry).
+
+```{r}
+# defining the name of the environment
+conda_env_name <- "r-xarray"
+
+# creating conda environment
+reticulate::conda_create(envname = conda_env_name)
+```
+
+With the environment created, let's install the dependencies on it:
+
+```{r}
+reticulate::py_install(
+  c("xarray"),
+  envname = conda_env_name,
+  pip =  TRUE
+)
+```
+
+## Importing Python libraries
+
+Now, we have an environment ready to go. So, let's activate it:
+
+```{r}
+reticulate::use_condaenv(condaenv = conda_env_name)
+```
+
+To use the [xarray](https://docs.xarray.dev/en/stable/index.html) library, we can import it using the following [reticulate](https://rstudio.github.io/reticulate/) command:
+
+```{r}
+xr <- reticulate::import("xarray")
+```
+
+For this example, we will also use other Python libraries. So, we also need to import them:
+
+> As you can see in the code below, we are importing [pandas](https://pandas.pydata.org/) and [numpy](https://numpy.org/). Both are dependencies from [xarray](https://docs.xarray.dev/en/stable/index.html), so we don't need to install them directly.
+
+```{r}
+pd <- reticulate::import("pandas")
+np <- reticulate::import("numpy")
+```
+
+## Dummy dataset example
+
+To show how the [xarray](https://docs.xarray.dev/en/stable/index.html) can handle multidimensional data, we will create a dummy dataset with 3 dimensions: `X`, `Y`, and `Y`.
+
+For this, let's create a 3D array using [numpy](https://numpy.org/) and random values:
+
+```{r}
+data <- np$random$rand(1000L, 100L, 10L)
+```
+
+We already have the data created. Now, we need to define the name of its dimensions:
+
+```{r}
+dims <- c("x", "y", "time")
+dims
+```
+
+As the [xarray](https://docs.xarray.dev/en/stable/index.html) uses indices to handle data, we also need to specify the coordinates of the dataset:
+
+> The `coordinates` are used to specify the extensions of the data (e.g., spatial dimension (`X`, `Y`) and temporal dimension (`Y`))
+
+```{r}
+coords = list(
+  x = 1:1000,
+  y = 1:100,
+  time = pd$period_range("2000-01-01", periods = 10)
+)
+```
+
+Using the elements we have defined in the code blocks above, let's create a [DataArray](https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html):
+
+```{r}
+ds <- xr$DataArray(data, dims = dims, coords = coords)
+ds
+```
+
+## Temporal mean
+
+With the [DataArray](https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html) created, it can be manipulated (e.g., extract values, calculate statistics). As an example, let's calculate the temporal mean:
+
+```{r}
+ds_mean <- ds$mean(dim = "time")
+ds_mean
+```
+
+By using the `mean(dim = "time")`, we specify to the xarray the mean should be calculated in the temporal dimension. So, in our example, it is calculated using `10 values` values for each `X` and `Y`.
