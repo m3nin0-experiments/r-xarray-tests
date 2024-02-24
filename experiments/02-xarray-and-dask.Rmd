@@ -8,7 +8,7 @@ date: "`r Sys.Date()`"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-This document presents an example of how the [xarray](https://docs.xarray.dev/en/stable/index.html) and the [dask](https://www.dask.org/) Python library can be used together in R.
+This document presents an example of how the [xarray](https://docs.xarray.dev/en/stable/index.html) and the [dask](https://www.dask.org/) Python libraries can be used together in R.
 
 ## Installation
 
