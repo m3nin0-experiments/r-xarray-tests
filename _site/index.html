@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered Files Listing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .ui.container {
+            width: auto !important;
+        }
+
+        .ui.list {
+            width: 100%;
+            max-width: 600px;
+            /* Adjust based on your preference */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="ui container">
+        <div class="ui relaxed list">
+            <h1>R and xarray experiments</h1>
+            <p>Source code: <a href="https://github.com/m3nin0-experiments/r-xarray-tests">github.com/m3nin0-experiments/r-xarray-tests</a></p>
+            <div class="item">
+                <i class="large file alternate outline middle aligned icon"></i>
+                <div class="content">
+                    <a class="header">(Experiment 1) - Simple xarray example in R</a>
+                    <div class="description">Example of how the xarray Python library can be used in R.
+                        <a href="/01-simple-xarray.html" target="_blank">Access</a>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <i class="large file alternate outline middle aligned icon"></i>
+                <div class="content">
+                    <a class="header">(Experiment 2) - Using xarray with dask</a>
+                    <div class="description">example of how the xarray and the dask Python libraries can be used
+                        together in R.
+                        <a href="/02-xarray-and-dask.html" target="_blank">Access</a>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <i class="large file alternate outline middle aligned icon"></i>
+                <div class="content">
+                    <a class="header">(Experiment 3) - Processing raster data using rstac and xarray</a>
+                    <div class="description">example of how the xarray can be used to handle spatio-temporal raster in
+                        R.
+                        <a href="/03-xarray-raster.html" target="_blank">Access</a>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <i class="large file alternate outline middle aligned icon"></i>
+                <div class="content">
+                    <a class="header">(Experiment 4) - Processing raster data using rstac and xarray (local data)</a>
+                    <div class="description">Example of how the xarray Python library can be used in R.
+                        <a href="/04-xarray-raster-local.html" target="_blank">Access</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+</body>
+
+</html>
