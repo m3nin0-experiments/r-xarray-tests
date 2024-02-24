@@ -421,7 +421,7 @@ resources. To do that, we must create an instance of the class
 <code>dask.distributed.Client</code>:</p>
 <pre class="r"><code>client &lt;- dd$Client()
 client</code></pre>
-<pre><code>## &lt;Client: &#39;tcp://127.0.0.1:35137&#39; processes=4 threads=16, memory=31.20 GiB&gt;</code></pre>
+<pre><code>## &lt;Client: &#39;tcp://127.0.0.1:36209&#39; processes=4 threads=16, memory=31.20 GiB&gt;</code></pre>
 <p>By default, when we create an instance of the
 <code>dask.distributed.Client</code> class, <a href="#">dask</a>
 configures a local server to use all cores available in the machine.</p>
@@ -462,9 +462,9 @@ spatiotemporal_array</code></pre>
 ##   * band                                     (band) &lt;U12 2kB &#39;aot&#39; ... &#39;wvp-jp2&#39;
 ##   * x                                        (x) float64 88kB 7e+05 ... 8.098...
 ##   * y                                        (y) float64 88kB 7.6e+06 ... 7.4...
-##     mgrs:utm_zone                            int64 8B 22
+##     s2:nodata_pixel_percentage               int64 8B 0
 ##     ...                                       ...
-##     raster:bands                             (band) object 256B [{&#39;nodata&#39;: 0...
+##     title                                    (band) &lt;U31 4kB &#39;Aerosol optical...
 ##     gsd                                      (band) object 256B None 10 ... None
 ##     common_name                              (band) object 256B None ... None
 ##     center_wavelength                        (band) object 256B None ... None
@@ -495,12 +495,12 @@ ndvi</code></pre>
 ##     id                                       (time) &lt;U24 288B &#39;S2B_22KGA_2024...
 ##   * x                                        (x) float64 88kB 7e+05 ... 8.098...
 ##   * y                                        (y) float64 88kB 7.6e+06 ... 7.4...
+##     s2:nodata_pixel_percentage               int64 8B 0
+##     earthsearch:s3_path                      (time) &lt;U79 948B &#39;s3://sentinel-...
+##     ...                                       ...
 ##     mgrs:utm_zone                            int64 8B 22
 ##     s2:not_vegetated_percentage              (time) float64 24B 10.21 ... 8.486
-##     ...                                       ...
-##     s2:cloud_shadow_percentage               (time) float64 24B 4.237 10.77 10.6
-##     s2:thin_cirrus_percentage                (time) float64 24B 6.365 ... 0.5777
-##     s2:water_percentage                      (time) float64 24B 2.43 2.568 2.264
+##     s2:snow_ice_percentage                   int64 8B 0
 ##     raster:bands                             object 8B [{&#39;nodata&#39;: 0, &#39;data_t...
 ##     gsd                                      object 8B 10
 ##     epsg                                     int64 8B 32722</code></pre>
@@ -514,14 +514,14 @@ ndvi_mean</code></pre>
 ## Coordinates: (12/21)
 ##   * x                                        (x) float64 88kB 7e+05 ... 8.098...
 ##   * y                                        (y) float64 88kB 7.6e+06 ... 7.4...
+##     s2:nodata_pixel_percentage               int64 8B 0
+##     processing:software                      object 8B {&#39;sentinel2-to-stac&#39;: ...
+##     s2:sequence                              &lt;U1 4B &#39;0&#39;
+##     proj:epsg                                int64 8B 32722
+##     ...                                       ...
+##     earthsearch:boa_offset_applied           bool 1B True
 ##     mgrs:utm_zone                            int64 8B 22
 ##     s2:snow_ice_percentage                   int64 8B 0
-##     s2:nodata_pixel_percentage               int64 8B 0
-##     s2:datatake_type                         &lt;U8 32B &#39;INS-NOBS&#39;
-##     ...                                       ...
-##     grid:code                                &lt;U10 40B &#39;MGRS-22KGA&#39;
-##     earthsearch:boa_offset_applied           bool 1B True
-##     constellation                            &lt;U10 40B &#39;sentinel-2&#39;
 ##     raster:bands                             object 8B [{&#39;nodata&#39;: 0, &#39;data_t...
 ##     gsd                                      object 8B 10
 ##     epsg                                     int64 8B 32722</code></pre>
@@ -549,14 +549,14 @@ ndvi_mean_data</code></pre>
 ## Coordinates: (12/21)
 ##   * x                                        (x) float64 88kB 7e+05 ... 8.098...
 ##   * y                                        (y) float64 88kB 7.6e+06 ... 7.4...
+##     s2:nodata_pixel_percentage               int64 8B 0
+##     processing:software                      object 8B {&#39;sentinel2-to-stac&#39;: ...
+##     s2:sequence                              &lt;U1 4B &#39;0&#39;
+##     proj:epsg                                int64 8B 32722
+##     ...                                       ...
+##     earthsearch:boa_offset_applied           bool 1B True
 ##     mgrs:utm_zone                            int64 8B 22
 ##     s2:snow_ice_percentage                   int64 8B 0
-##     s2:nodata_pixel_percentage               int64 8B 0
-##     s2:datatake_type                         &lt;U8 32B &#39;INS-NOBS&#39;
-##     ...                                       ...
-##     grid:code                                &lt;U10 40B &#39;MGRS-22KGA&#39;
-##     earthsearch:boa_offset_applied           bool 1B True
-##     constellation                            &lt;U10 40B &#39;sentinel-2&#39;
 ##     raster:bands                             object 8B [{&#39;nodata&#39;: 0, &#39;data_t...
 ##     gsd                                      object 8B 10
 ##     epsg                                     int64 8B 32722</code></pre>
@@ -567,7 +567,43 @@ output_dir &lt;- fs::path(&quot;data/example-03&quot;)
 # creating output directory
 fs::dir_create(output_dir, recurse = TRUE)
 
-# saving results
+# defining file metadata
+ndvi_mean_data$rio$set_attrs(nir$attrs)</code></pre>
+<pre><code>## &lt;xarray.DataArray &#39;stackstac-dbb0e730c11b926fe5ac5a87ce8c790a&#39; (y: 10980,
+##                                                                 x: 10980)&gt; Size: 964MB
+## array([[1.06741027, 1.05594742, 1.08179379, ..., 1.42908627, 1.41649439,
+##         1.40925625],
+##        [0.98031766, 1.02521273, 1.06912391, ..., 1.42091841, 1.40591751,
+##         1.4122806 ],
+##        [0.9362474 , 0.9941019 , 1.04582839, ..., 1.40666432, 1.41219386,
+##         1.42676016],
+##        ...,
+##        [0.25959347, 0.2616745 , 0.26388728, ..., 1.61944882, 1.79426859,
+##         2.08429357],
+##        [0.27365805, 0.27209891, 0.26758767, ..., 1.84578764, 2.18360486,
+##         2.58891568],
+##        [0.282057  , 0.27502554, 0.267502  , ..., 1.964097  , 2.25718843,
+##         2.09648986]])
+## Coordinates: (12/21)
+##   * x                                        (x) float64 88kB 7e+05 ... 8.098...
+##   * y                                        (y) float64 88kB 7.6e+06 ... 7.4...
+##     s2:nodata_pixel_percentage               int64 8B 0
+##     processing:software                      object 8B {&#39;sentinel2-to-stac&#39;: ...
+##     s2:sequence                              &lt;U1 4B &#39;0&#39;
+##     proj:epsg                                int64 8B 32722
+##     ...                                       ...
+##     earthsearch:boa_offset_applied           bool 1B True
+##     mgrs:utm_zone                            int64 8B 22
+##     s2:snow_ice_percentage                   int64 8B 0
+##     raster:bands                             object 8B [{&#39;nodata&#39;: 0, &#39;data_t...
+##     gsd                                      object 8B 10
+##     epsg                                     int64 8B 32722
+## Attributes:
+##     spec:        RasterSpec(epsg=32722, bounds=(699960.0, 7490200.0, 809760.0...
+##     crs:         epsg:32722
+##     transform:   | 10.00, 0.00, 699960.00|\n| 0.00,-10.00, 7600000.00|\n| 0.0...
+##     resolution:  10.0</code></pre>
+<pre class="r"><code># writing raster
 ndvi_mean_data$rio$to_raster(output_dir / &quot;ndvi.tif&quot;)</code></pre>
 </div>
 

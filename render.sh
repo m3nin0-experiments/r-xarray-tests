@@ -6,7 +6,7 @@ set -eou pipefail
 # General definitions
 #
 input_dir="experiments"
-output_dir="build"
+output_dir="_site"
 
 #
 # 1. Creating output directory

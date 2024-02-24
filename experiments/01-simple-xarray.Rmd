@@ -1,5 +1,5 @@
 ---
-title: "Simple xarray example in R"
+title: "Simple xarray"
 output: html_document
 date: "`r Sys.Date()`"
 ---

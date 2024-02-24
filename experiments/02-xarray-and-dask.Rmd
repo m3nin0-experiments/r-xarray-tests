@@ -80,9 +80,11 @@ By default, when we create an instance of the `dask.distributed.Client` class, [
 
 ## Dummy dataset example
 
-To show how the [xarray](https://docs.xarray.dev/en/stable/index.html) and [dask](https://www.dask.org/) can handle multidimensional data, we will create a dummy dataset with 3 dimensions: `X`, `Y`, and `Y`.
+To show how the [xarray](https://docs.xarray.dev/en/stable/index.html) can use parallel-enabled arrays from [dask](https://www.dask.org/), we will create a dummy dataset with 3 dimensions: `X`, `Y`, and `Y`.
 
-For this, let's create a 3D array using [Dask arrays](https://docs.dask.org/en/stable/array.html) with values:
+> Using dask array is possible because xarray can work with multiple "array backends". To learn more, please check this [documentation page](https://docs.xarray.dev/en/stable/user-guide/duckarrays.html)
+
+For this, let's create a 3D array using [Dask array](https://docs.dask.org/en/stable/array.html) with values:
 
 ```{r}
 data <- da$random$random(c(10000, 1000, 100), chunks = c(1000, 1000, 10))

@@ -356,7 +356,7 @@ display: none;
 
 
 <p>This document presents an example of how the <a href="https://docs.xarray.dev/en/stable/index.html">xarray</a> and the
-<a href="https://www.dask.org/">dask</a> Python library can be used
+<a href="https://www.dask.org/">dask</a> Python libraries can be used
 together in R.</p>
 <div id="installation" class="section level2">
 <h2>Installation</h2>
@@ -409,17 +409,23 @@ resources. To do that, we must create an instance of the class
 <code>dask.distributed.Client</code>:</p>
 <pre class="r"><code>client &lt;- dd$Client()
 client</code></pre>
-<pre><code>## &lt;Client: &#39;tcp://127.0.0.1:41623&#39; processes=4 threads=16, memory=31.20 GiB&gt;</code></pre>
+<pre><code>## &lt;Client: &#39;tcp://127.0.0.1:41081&#39; processes=4 threads=16, memory=31.20 GiB&gt;</code></pre>
 <p>By default, when we create an instance of the
 <code>dask.distributed.Client</code> class, <a href="https://www.dask.org/">dask</a> configures a local server to use
 all cores available in the machine.</p>
 </div>
 <div id="dummy-dataset-example" class="section level2">
 <h2>Dummy dataset example</h2>
-<p>To show how the <a href="https://docs.xarray.dev/en/stable/index.html">xarray</a> and <a href="https://www.dask.org/">dask</a> can handle multidimensional data,
+<p>To show how the <a href="https://docs.xarray.dev/en/stable/index.html">xarray</a> can use
+parallel-enabled arrays from <a href="https://www.dask.org/">dask</a>,
 we will create a dummy dataset with 3 dimensions: <code>X</code>,
 <code>Y</code>, and <code>Y</code>.</p>
-<p>For this, let’s create a 3D array using <a href="https://docs.dask.org/en/stable/array.html">Dask arrays</a> with
+<blockquote>
+<p>Using dask array is possible because xarray can work with multiple
+“array backends”. To learn more, please check this <a href="https://docs.xarray.dev/en/stable/user-guide/duckarrays.html">documentation
+page</a></p>
+</blockquote>
+<p>For this, let’s create a 3D array using <a href="https://docs.dask.org/en/stable/array.html">Dask array</a> with
 values:</p>
 <pre class="r"><code>data &lt;- da$random$random(c(10000, 1000, 100), chunks = c(1000, 1000, 10))</code></pre>
 <p>We already have the data created. Now, we need to define the name of
@@ -444,7 +450,7 @@ temporal dimension (<code>Y</code>))</p>
 create a <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html">DataArray</a>:</p>
 <pre class="r"><code>ds &lt;- xr$DataArray(data, dims = dims, coords = coords)
 ds</code></pre>
-<pre><code>## &lt;xarray.DataArray &#39;random_sample-05c92497c59b8efa20b1db3f04d763ed&#39; (x: 10000,
+<pre><code>## &lt;xarray.DataArray &#39;random_sample-4e84716bb095f419171a6d0f7bc534d8&#39; (x: 10000,
 ##                                                                     y: 1000,
 ##                                                                     time: 100)&gt; Size: 8GB
 ## dask.array&lt;random_sample, shape=(10000, 1000, 100), dtype=float64, chunksize=(1000, 1000, 10), chunktype=numpy.ndarray&gt;
@@ -460,7 +466,7 @@ created, it can be manipulated (e.g., extract values, calculate
 statistics). As an example, let’s calculate the temporal mean:</p>
 <pre class="r"><code>ds_mean &lt;- ds$mean(dim = &quot;time&quot;)
 ds_mean</code></pre>
-<pre><code>## &lt;xarray.DataArray &#39;random_sample-05c92497c59b8efa20b1db3f04d763ed&#39; (x: 10000,
+<pre><code>## &lt;xarray.DataArray &#39;random_sample-4e84716bb095f419171a6d0f7bc534d8&#39; (x: 10000,
 ##                                                                     y: 1000)&gt; Size: 80MB
 ## dask.array&lt;mean_agg-aggregate, shape=(10000, 1000), dtype=float64, chunksize=(1000, 1000), chunktype=numpy.ndarray&gt;
 ## Coordinates:
@@ -476,21 +482,21 @@ to be executed. For this, we can ask <a href="https://www.dask.org/">dask</a> to
 <code>compute</code> method.</p>
 <pre class="r"><code>ds_mean_result &lt;- ds_mean$compute()
 ds_mean_result</code></pre>
-<pre><code>## &lt;xarray.DataArray &#39;random_sample-05c92497c59b8efa20b1db3f04d763ed&#39; (x: 10000,
+<pre><code>## &lt;xarray.DataArray &#39;random_sample-4e84716bb095f419171a6d0f7bc534d8&#39; (x: 10000,
 ##                                                                     y: 1000)&gt; Size: 80MB
-## array([[0.5211487 , 0.47068737, 0.50529037, ..., 0.46464466, 0.52736532,
-##         0.49974321],
-##        [0.50796328, 0.48978674, 0.54296021, ..., 0.50460114, 0.49583592,
-##         0.48170288],
-##        [0.55184639, 0.51828277, 0.53010337, ..., 0.50954436, 0.52554207,
-##         0.49176463],
+## array([[0.50523963, 0.49158075, 0.51634986, ..., 0.51585687, 0.52460652,
+##         0.48432029],
+##        [0.50291136, 0.52411857, 0.52711266, ..., 0.55775228, 0.48492103,
+##         0.54399245],
+##        [0.44459165, 0.50273843, 0.53984618, ..., 0.48911262, 0.51668726,
+##         0.47723605],
 ##        ...,
-##        [0.52900466, 0.48780777, 0.54573344, ..., 0.47772167, 0.51135994,
-##         0.51862267],
-##        [0.47883522, 0.50599898, 0.50554024, ..., 0.48424196, 0.50366458,
-##         0.4989275 ],
-##        [0.50123931, 0.50008644, 0.50648302, ..., 0.50050081, 0.49137536,
-##         0.52012797]])
+##        [0.48459336, 0.52276482, 0.50151155, ..., 0.54318331, 0.44514529,
+##         0.48300997],
+##        [0.49077422, 0.48251716, 0.52708729, ..., 0.49740063, 0.50426222,
+##         0.50844991],
+##        [0.49711487, 0.54743229, 0.47299098, ..., 0.49221646, 0.48103704,
+##         0.47759115]])
 ## Coordinates:
 ##   * x        (x) int64 80kB 1 2 3 4 5 6 7 ... 9995 9996 9997 9998 9999 10000
 ##   * y        (y) int64 8kB 1 2 3 4 5 6 7 8 ... 993 994 995 996 997 998 999 1000</code></pre>
