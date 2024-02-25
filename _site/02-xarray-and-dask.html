@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2024-02-24" />
+<meta name="date" content="2024-02-25" />
 
 <title>Using xarray with dask</title>
 
@@ -350,7 +350,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">Using xarray with dask</h1>
-<h4 class="date">2024-02-24</h4>
+<h4 class="date">2024-02-25</h4>
 
 </div>
 
@@ -409,7 +409,7 @@ resources. To do that, we must create an instance of the class
 <code>dask.distributed.Client</code>:</p>
 <pre class="r"><code>client &lt;- dd$Client()
 client</code></pre>
-<pre><code>## &lt;Client: &#39;tcp://127.0.0.1:41081&#39; processes=4 threads=16, memory=31.20 GiB&gt;</code></pre>
+<pre><code>## &lt;Client: &#39;tcp://127.0.0.1:46389&#39; processes=4 threads=16, memory=31.20 GiB&gt;</code></pre>
 <p>By default, when we create an instance of the
 <code>dask.distributed.Client</code> class, <a href="https://www.dask.org/">dask</a> configures a local server to use
 all cores available in the machine.</p>
@@ -450,7 +450,7 @@ temporal dimension (<code>Y</code>))</p>
 create a <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html">DataArray</a>:</p>
 <pre class="r"><code>ds &lt;- xr$DataArray(data, dims = dims, coords = coords)
 ds</code></pre>
-<pre><code>## &lt;xarray.DataArray &#39;random_sample-4e84716bb095f419171a6d0f7bc534d8&#39; (x: 10000,
+<pre><code>## &lt;xarray.DataArray &#39;random_sample-bffe8d580f9a246a840a9f6935173724&#39; (x: 10000,
 ##                                                                     y: 1000,
 ##                                                                     time: 100)&gt; Size: 8GB
 ## dask.array&lt;random_sample, shape=(10000, 1000, 100), dtype=float64, chunksize=(1000, 1000, 10), chunktype=numpy.ndarray&gt;
@@ -466,7 +466,7 @@ created, it can be manipulated (e.g., extract values, calculate
 statistics). As an example, let’s calculate the temporal mean:</p>
 <pre class="r"><code>ds_mean &lt;- ds$mean(dim = &quot;time&quot;)
 ds_mean</code></pre>
-<pre><code>## &lt;xarray.DataArray &#39;random_sample-4e84716bb095f419171a6d0f7bc534d8&#39; (x: 10000,
+<pre><code>## &lt;xarray.DataArray &#39;random_sample-bffe8d580f9a246a840a9f6935173724&#39; (x: 10000,
 ##                                                                     y: 1000)&gt; Size: 80MB
 ## dask.array&lt;mean_agg-aggregate, shape=(10000, 1000), dtype=float64, chunksize=(1000, 1000), chunktype=numpy.ndarray&gt;
 ## Coordinates:
@@ -482,21 +482,21 @@ to be executed. For this, we can ask <a href="https://www.dask.org/">dask</a> to
 <code>compute</code> method.</p>
 <pre class="r"><code>ds_mean_result &lt;- ds_mean$compute()
 ds_mean_result</code></pre>
-<pre><code>## &lt;xarray.DataArray &#39;random_sample-4e84716bb095f419171a6d0f7bc534d8&#39; (x: 10000,
+<pre><code>## &lt;xarray.DataArray &#39;random_sample-bffe8d580f9a246a840a9f6935173724&#39; (x: 10000,
 ##                                                                     y: 1000)&gt; Size: 80MB
-## array([[0.50523963, 0.49158075, 0.51634986, ..., 0.51585687, 0.52460652,
-##         0.48432029],
-##        [0.50291136, 0.52411857, 0.52711266, ..., 0.55775228, 0.48492103,
-##         0.54399245],
-##        [0.44459165, 0.50273843, 0.53984618, ..., 0.48911262, 0.51668726,
-##         0.47723605],
+## array([[0.52395468, 0.52582319, 0.5760999 , ..., 0.52075235, 0.46198502,
+##         0.49506406],
+##        [0.49823877, 0.52700124, 0.48738285, ..., 0.47766254, 0.47700453,
+##         0.55002639],
+##        [0.49502534, 0.48837638, 0.5267161 , ..., 0.50563961, 0.48020724,
+##         0.48280721],
 ##        ...,
-##        [0.48459336, 0.52276482, 0.50151155, ..., 0.54318331, 0.44514529,
-##         0.48300997],
-##        [0.49077422, 0.48251716, 0.52708729, ..., 0.49740063, 0.50426222,
-##         0.50844991],
-##        [0.49711487, 0.54743229, 0.47299098, ..., 0.49221646, 0.48103704,
-##         0.47759115]])
+##        [0.4804682 , 0.49752797, 0.51064833, ..., 0.52835988, 0.52285502,
+##         0.53107802],
+##        [0.49753673, 0.51126792, 0.48127124, ..., 0.51847087, 0.46748262,
+##         0.55353419],
+##        [0.51380704, 0.50863396, 0.47923159, ..., 0.51144999, 0.42756488,
+##         0.42257002]])
 ## Coordinates:
 ##   * x        (x) int64 80kB 1 2 3 4 5 6 7 ... 9995 9996 9997 9998 9999 10000
 ##   * y        (y) int64 8kB 1 2 3 4 5 6 7 8 ... 993 994 995 996 997 998 999 1000</code></pre>

@@ -161,7 +161,7 @@ output_dir <- fs::path("data/example-03")
 fs::dir_create(output_dir, recurse = TRUE)
 
 # defining file metadata
-ndvi_mean_data$rio$set_attrs(nir$attrs)
+ndvi_mean_data$rio$set_attrs(nir$attrs, inplace = TRUE)
 
 # writing raster
 ndvi_mean_data$rio$to_raster(output_dir / "ndvi.tif")

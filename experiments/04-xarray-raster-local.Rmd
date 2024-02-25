@@ -189,7 +189,7 @@ To finish, we can save this result:
 
 ```{r}
 # defining file metadata
-ndvi_mean_data$rio$set_attrs(nir$attrs)
+ndvi_mean_data$rio$set_attrs(nir$attrs, inplace = TRUE)
 
 # writing raster
 ndvi_mean_data$rio$to_raster(output_dir / "ndvi.tif")
