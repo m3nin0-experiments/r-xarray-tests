@@ -82,7 +82,7 @@ dims
 
 As the [xarray](https://docs.xarray.dev/en/stable/index.html) uses indices to handle data, we also need to specify the coordinates of the dataset:
 
-> The `coordinates` are used to specify the extensions of the data (e.g., spatial dimension (`X`, `Y`) and temporal dimension (`Y`))
+> The `coordinates` are used to specify the extensions of the data (e.g., spatial dimension (`X`, `Y`) and temporal dimension (`time`))
 
 ```{r}
 coords = list(
