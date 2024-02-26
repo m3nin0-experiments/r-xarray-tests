@@ -476,9 +476,9 @@ ds_mean</code></pre>
 should be calculated in the temporal dimension. So, in our example, it
 is calculated using <code>10 values</code> values for each
 <code>X</code> and <code>Y</code>.</p>
-<p>With <a href="https://docs.xarray.dev/en/stable/index.html">xarray</a>, we are
+<p>With <a href="https://www.dask.org/">dask</a>, we are
 always using lazy evaluation functions. So, the code above still needs
-to be executed. For this, we can ask <a href="https://www.dask.org/">dask</a> to execute it using the
+to be executed. For this, we can ask <a href="https://docs.xarray.dev/en/stable/index.html">xarray</a> to execute it using the
 <code>compute</code> method.</p>
 <pre class="r"><code>ds_mean_result &lt;- ds_mean$compute()
 ds_mean_result</code></pre>

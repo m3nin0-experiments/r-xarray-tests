@@ -127,7 +127,7 @@ ds_mean
 
 By using the `mean(dim = "time")`, we specify to the [xarray](https://docs.xarray.dev/en/stable/index.html) the mean should be calculated in the temporal dimension. So, in our example, it is calculated using `10 values` values for each `X` and `Y`.
 
-With [xarray](https://docs.xarray.dev/en/stable/index.html), we are always using lazy evaluation functions. So, the code above still needs to be executed. For this, we can ask [dask](https://www.dask.org/) to execute it using the `compute` method.
+With [dask](https://www.dask.org/), we are always using lazy evaluation functions. So, the code above still needs to be executed. For this, we can ask [xarray](https://docs.xarray.dev/en/stable/index.html) to execute it using the `compute` method.
 
 ```{r}
 ds_mean_result <- ds_mean$compute()
